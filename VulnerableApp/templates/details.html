@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="title">
+  Credit Card Details
+</h1>
+<h2 class="subtitle">
+  Here are your details as requested !
+</h2>
+
+{% if creditdetails %}
+<table>
+<tr>
+  <th>Name</th>
+  <th>Credit Card Number</th>
+  <th>CVV</th>
+</tr>
+  <th>{{creditdetails[0]}}</th>
+  <th>{{creditdetails[1]}}</th>
+  <th>{{creditdetails[2]}}</th>
+</table>
+{% endif %}
+{% endblock %}

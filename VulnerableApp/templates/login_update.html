@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<form action="/changeusername" method="get">
+    <label for="newusername">Enter your new username here:</label>
+    <input type="text" id="newusername" name="newusername"><br><br>
+    <input type="hidden" id="userid" name="userid" value="{{userid}}"><br><br>
+</form>
+<form action="/changepassword" method="post">
+    <label for="passwordbox">Update your password here:</label>
+    <input type="text" id="passwordbox" name="passwordbox"><br><br>
+    <input type="hidden" id="userhash" name="userhash" value="{{userhash}}"><br><br>
+</form>
+{% endblock %}
