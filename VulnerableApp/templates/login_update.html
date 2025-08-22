@@ -1,14 +1,96 @@
 {% extends "base.html" %}
 
 {% block content %}
-<form action="/changeusername" method="get">
-    <label for="newusername">Enter your new username here:</label>
-    <input type="text" id="newusername" name="newusername"><br><br>
-    <input type="hidden" id="userid" name="userid" value="{{userid}}"><br><br>
-</form>
-<form action="/changepassword" method="post">
-    <label for="passwordbox">Update your password here:</label>
-    <input type="text" id="passwordbox" name="passwordbox"><br><br>
-    <input type="hidden" id="userhash" name="userhash" value="{{userhash}}"><br><br>
-</form>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <h2 class="text-center mb-4">🔧 Update Account Settings</h2>
+            
+            <!-- Change Username Form -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">👤 Change Username</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/changeusername" method="get">
+                        <div class="form-group">
+                            <label for="newusername" class="form-label">New Username:</label>
+                            <input type="text" class="form-control" id="newusername" name="newusername" 
+                                   placeholder="Enter your new username" required>
+                        </div>
+                        <input type="hidden" id="userid" name="userid" value="{{userid}}">
+                        <button type="submit" class="btn btn-primary">
+                            💾 Update Username
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Change Display Name Form -->
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">🆔 Change Display Name</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/changename" method="get">
+                        <div class="form-group">
+                            <label for="newname" class="form-label">New Display Name:</label>
+                            <input type="text" class="form-control" id="newname" name="newname" 
+                                   placeholder="Enter your new display name" required>
+                        </div>
+                        <input type="hidden" id="userid2" name="userid" value="{{userid}}">
+                        <button type="submit" class="btn btn-success">
+                            💾 Update Display Name
+                        </button>
+                    </form>
+                    <small class="text-muted">This appears on your profile page - <strong>⚠️ XSS vulnerable!</strong></small>
+                </div>
+            </div>
+
+            <!-- Change Password Form -->
+            <div class="card mb-4">
+                <div class="card-header bg-warning text-dark">
+                    <h5 class="mb-0">🔑 Change Password</h5>
+                </div>
+                <div class="card-body">
+                    <form action="/changepassword" method="post">
+                        <div class="form-group">
+                            <label for="passwordbox" class="form-label">New Password:</label>
+                            <input type="password" class="form-control" id="passwordbox" name="passwordbox" 
+                                   placeholder="Enter your new password" required>
+                        </div>
+                        <input type="hidden" id="userhash" name="userhash" value="{{userhash}}">
+                        <button type="submit" class="btn btn-warning text-dark">
+                            💾 Update Password
+                        </button>
+                    </form>
+                    <small class="text-muted">Keep your password secure</small>
+                </div>
+            </div>
+
+            <!-- Navigation -->
+            <div class="text-center">
+                <a href="{{ url_for('main.profile') }}" class="btn btn-outline-secondary me-2">
+                    👤 View Profile
+                </a>
+                <a href="{{ url_for('main.index') }}" class="btn btn-outline-primary">
+                    🏠 Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Add some custom styling -->
+<style>
+.card-header h5 {
+    margin: 0;
+}
+.form-group {
+    margin-bottom: 1rem;
+}
+.btn {
+    margin-top: 0.5rem;
+}
+</style>
 {% endblock %}

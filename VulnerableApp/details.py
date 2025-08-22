@@ -2,12 +2,26 @@ from flask import Blueprint, render_template_string, render_template, request, u
 from pathlib import Path
 import sqlite3
 import hashlib
+import os
 from flask_login import login_required
 
 from .models import User
 
 details = Blueprint('details', __name__)
-instance_db_path = str((Path.cwd() / 'instance' / 'db.sqlite').resolve())
+
+# Get the absolute path to the database file in a cross-platform way
+def get_db_path():
+    """Get the absolute path to the database file"""
+    # Get the directory where this file is located
+    current_dir = Path(__file__).parent.absolute()
+    # Go up one level to the project root and then to instance directory
+    project_root = current_dir.parent
+    instance_dir = project_root / 'instance'
+    # Ensure the instance directory exists
+    instance_dir.mkdir(exist_ok=True)
+    return str((instance_dir / 'db.sqlite').resolve())
+
+instance_db_path = get_db_path()
 from . import db
 
 @details.route('/credit')
@@ -22,7 +36,7 @@ def creditredirect():
 @login_required
 def credit(userid):
     #Added SQL injection vulnerability by executing a raw command, in case the student would like to experiment
-    sqlconn = sqlite3.connect(instance_db_path)
+    sqlconn = sqlite3.connect(get_db_path())
     cursor = sqlconn.cursor()
     cursor.execute("select * from Credit where userid=" + str(userid))
     result = cursor.fetchall()
@@ -52,18 +66,48 @@ def changeusername():
     print(newusername)
     userid = request.args.get('userid')
     print(userid)
-    sqlconn = sqlite3.connect(instance_db_path)
+    sqlconn = sqlite3.connect(get_db_path())
     cursor = sqlconn.cursor()
     print("update user set username='" + str(newusername) + "' where userid=" +str(userid))
     cursor.execute("update user set username='" + str(newusername) + "' where userid=" +str(userid))
     sqlconn.commit()
     return redirect(url_for('details.loginupdate'))
 
+@details.route('/changename')
+def changename():
+    # Vulnerable route that allows changing the user's name
+    # This creates a stored XSS vulnerability since the name is displayed without escaping on /profile
+    newname = request.args.get('newname')
+    userid = request.args.get('userid')
+    print(f"Changing name to: {newname} for user: {userid}")
+    
+    if newname is None or userid is None:
+        return redirect(url_for('details.loginupdate'))
+    
+    sqlconn = sqlite3.connect(get_db_path())
+    cursor = sqlconn.cursor()
+    
+    try:
+        # Use parameterized query to avoid SQL syntax errors but still allow XSS
+        # This fixes the SQL injection but keeps the XSS vulnerability
+        query = "UPDATE user SET name = ? WHERE userid = ?"
+        print(f"Executing query: {query} with params: [{newname}, {userid}]")
+        cursor.execute(query, (newname, userid))
+        sqlconn.commit()
+        print(f"Successfully updated name to: {newname}")
+    except Exception as e:
+        print(f"Database error: {e}")
+        # Even if there's an error, continue to avoid breaking the flow
+    finally:
+        sqlconn.close()
+    
+    return redirect(url_for('details.loginupdate'))
+
 @details.route('/deleteuser')
 @login_required
 def deleteuser():
     userid = request.cookies.get('userid')
-    sqlconn = sqlite3.connect(instance_db_path)
+    sqlconn = sqlite3.connect(get_db_path())
     cursor = sqlconn.cursor()
     cursor.execute("delete from user where userid=" + str(userid))
     cursor.execute("delete from credit where userid=" + str(userid))
