@@ -116,3 +116,17 @@ def deleteuser():
     response.delete_cookie('userhash')
     response.delete_cookie('userid')
     return render_template("delete_user.html")
+
+@details.route('/deleteuser', methods=['POST'])
+@login_required
+def deleteuser_post():
+    userid = request.cookies.get('userid')
+    sqlconn = sqlite3.connect(get_db_path())
+    cursor = sqlconn.cursor()
+    cursor.execute("delete from user where userid=" + str(userid))
+    cursor.execute("delete from credit where userid=" + str(userid))
+    sqlconn.commit()
+    response = redirect(url_for('auth.login'))
+    response.delete_cookie('userhash')
+    response.delete_cookie('userid')
+    return render_template("delete_user.html")
