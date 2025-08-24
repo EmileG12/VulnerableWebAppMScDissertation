@@ -54,9 +54,9 @@ else
 fi
 
 # Create virtual environment if it doesn't exist
-if [ ! -d "venv" ]; then
+if [ ! -d ".venv" ]; then
     echo -e "${YELLOW}📦 Creating virtual environment...${NC}"
-    $PYTHON_CMD -m venv venv
+    $PYTHON_CMD -m venv .venv
     if [ $? -ne 0 ]; then
         echo -e "${RED}❌ Failed to create virtual environment${NC}"
         exit 1
@@ -65,7 +65,14 @@ fi
 
 # Activate virtual environment
 echo -e "${YELLOW}🔧 Activating virtual environment...${NC}"
-source venv/bin/activate
+if [ -f ".venv/bin/activate" ]; then
+    source .venv/bin/activate
+else
+    echo -e "${RED}❌ Error: Virtual environment activation script not found${NC}"
+    echo "Expected: .venv/bin/activate"
+    echo "Please ensure the virtual environment was created successfully"
+    exit 1
+fi
 
 # Check if pip needs upgrading
 echo -e "${YELLOW}📦 Checking pip version...${NC}"
